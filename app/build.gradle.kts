@@ -84,11 +84,6 @@ dependencies {
     implementation("io.github.jan-tennert.supabase:storage-kt:1.3.2")
     implementation("io.ktor:ktor-client-cio:2.3.4")
 
-
-//    Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-
 //    Coil
 
     implementation(libs.coil.compose)
@@ -96,5 +91,9 @@ dependencies {
 
 //    SplashScreen
     implementation(libs.androidx.core.splashscreen)
+
+//    coroutine
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
 }

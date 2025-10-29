@@ -1,4 +1,4 @@
-package uk.ac.tees.mad.planty.presentation.ui.theme
+package uk.ac.tees.mad.planty.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
