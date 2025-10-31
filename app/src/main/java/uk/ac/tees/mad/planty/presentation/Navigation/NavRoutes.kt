@@ -2,19 +2,20 @@ package uk.ac.tees.mad.planty.presentation.Navigation
 
 import kotlinx.serialization.Serializable
 
-sealed class NavRoutes {
+
+sealed class Routes{
 
 
-    @Serializable
+    @kotlinx.serialization.Serializable
     data object AuthScreen
 
-    @Serializable
+    @kotlinx.serialization.Serializable
     data object SingInScreen
 
-    @Serializable
+    @kotlinx.serialization.Serializable
     data object LogInScreen
 
-    @Serializable
+    @kotlinx.serialization.Serializable
     data object HomeScreen
 
 }

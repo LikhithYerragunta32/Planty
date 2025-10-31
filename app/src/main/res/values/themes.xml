@@ -2,4 +2,15 @@
 <resources>
 
     <style name="Theme.Planty" parent="android:Theme.Material.Light.NoActionBar" />
+
+
+
+    <style name="Theme.Planty.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/app</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/pt_icon_main</item>
+        <item name="postSplashScreenTheme">@style/Theme.Planty</item>
+        <item name="windowSplashScreenAnimationDuration">300</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/white</item>
+    </style>
+
 </resources>
