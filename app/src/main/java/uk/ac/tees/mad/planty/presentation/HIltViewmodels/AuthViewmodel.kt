@@ -77,6 +77,26 @@ class AuthViewmodel @Inject constructor(): ViewModel() {
         }
     }
 
+    fun logIn(
+        email: String,
+        passkey: String,
+        onResult: (String, Boolean) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                auth.signInWithEmailAndPassword(email, passkey).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        onResult("Login successful", true)
+                    } else {
+                        val errorMessage = task.exception?.localizedMessage ?: "Login failed"
+                        onResult(errorMessage, false)
+                    }
+                }
+            } catch (e: Exception) {
+                onResult("Error: ${e.localizedMessage}", false)
+            }
+        }
+    }
 
 }
 

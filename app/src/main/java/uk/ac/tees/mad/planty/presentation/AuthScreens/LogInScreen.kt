@@ -167,7 +167,32 @@ fun LogInScreen(
 
             OutlinedButton(
                 onClick = {
-                    // TODO()
+                    if (isFormValid) {
+                        authViewModel.logIn(
+                            email = email,
+                            passkey = password,
+                            onResult = { message, success ->
+                                if (success) {
+                                    isLoading = true
+                                    navController.navigate(Routes.HomeScreen)
+                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                    isLoading = true
+                                } else {
+                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+
+                            ,
+
+                            )
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Please enter valid email and password",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
                 },
                 modifier = Modifier
                     .fillMaxWidth()

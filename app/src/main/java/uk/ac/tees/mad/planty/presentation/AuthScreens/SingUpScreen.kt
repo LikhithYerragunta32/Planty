@@ -153,7 +153,7 @@ fun SignUpScreen(authViewModel: AuthViewmodel, navController: NavHostController)
                                 isLoading = true
                                 navController.navigate(Routes.HomeScreen)
                                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                                isLoading = true
+                                isLoading = false
                             } else {
                                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             }

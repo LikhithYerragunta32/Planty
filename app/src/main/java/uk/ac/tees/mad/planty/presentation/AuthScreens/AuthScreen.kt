@@ -99,7 +99,7 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController) {
         ) {
             OutlinedButton(
                 onClick = {
-                    // TODO()
+                   navController.navigate(Routes.SingInScreen)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
