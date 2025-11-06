@@ -24,6 +24,10 @@ fun NavigationCompose(modifier: Modifier = Modifier, navController: NavHostContr
 
     val auth = FirebaseAuth.getInstance()
 
+//    AdgamaUser123@
+//    Adg@2025Safe
+//    https://plant.id/api/v3
+//    ENZF56UDT2C8iUX2ueep5OoNTDILmnsGLZRbOWtlYPo2K1hRLJ
 
     var currentUser by remember { mutableStateOf(auth.currentUser) }
 

@@ -53,7 +53,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-   
+
     implementation(libs.firebase.auth)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
@@ -77,6 +77,13 @@ dependencies {
 
 //       Kotlin Serialization
     implementation(libs.kotlinx.serialization)
+
+//    Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.8.8")
+    implementation("io.ktor:ktor-client-okhttp:2.3.3")
+
 
 
 //    Hilt
@@ -109,5 +116,8 @@ dependencies {
 //    coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+
+//    Icons
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
 }
