@@ -8,7 +8,8 @@ import retrofit2.http.POST
 
 data class PlantRequest(
     val api_key: String,
-    val images: List<String>
+    val images: List<String>,
+
 )
 
 
