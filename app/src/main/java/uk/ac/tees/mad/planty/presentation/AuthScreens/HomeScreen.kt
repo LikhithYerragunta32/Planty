@@ -1,6 +1,18 @@
 package uk.ac.tees.mad.planty.presentation.AuthScreens
 
 
+import android.Manifest
+import android.app.Activity
+import android.content.ContentResolver
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,54 +28,138 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-
-
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
-import coil3.Uri
-import coil3.compose.AsyncImage
 
+import coil3.compose.AsyncImage
+import uk.ac.tees.mad.planty.R
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.AuthViewmodel
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.HomeViewmodel
+import java.io.File
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewmodel,
     authViewModel: AuthViewmodel,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
+    val context = LocalContext.current
+
+// URI
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
+    val defaultUri = android.net.Uri.parse(
+        "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/${R.drawable.default_profile}"
+    )
 
+    val uri: Uri = (if (selectedImageUri == null) {
+        defaultUri
+    } else {
+        selectedImageUri!!
+    }) as Uri
+
+    //isPermission
+    var isCameraGranted by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    //Permission
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        isCameraGranted = granted
+
+    }
+
+    //    File Initializer
+    val imageUri = rememberSaveable {
+
+        val imageFile = File.createTempFile(
+            "photo_", ".jpg", context.cacheDir
+        )
+
+        FileProvider.getUriForFile(
+            context, "${context.packageName}.provider", imageFile
+
+        )
+    }
+
+
+// CAMERA
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            selectedImageUri = imageUri
+
+        }
+    }
+
+
+
+    //android 13
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(), onResult = { uri ->
+            if (uri != null) {
+                selectedImageUri = uri
+            } else {
+                Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+//android 12
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(), onResult = { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val uri = result.data?.data
+                if (uri != null) {
+                    selectedImageUri = uri
+                }
+            } else {
+                Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+
+
+    var showDialog by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -80,19 +176,87 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top)
     ) {
-        // Header
+
+
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = {
+                    Text(
+                        "Select plant image",color = Color(0xFF1B5E20)
+                    )
+                },
+                text = {
+                    Text(
+                        "Choose an option to select image",
+                        color = Color(0xFF1B5E20)
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+
+                        if (isCameraGranted) {
+
+                            cameraLauncher.launch(imageUri)
+
+                        } else {
+
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
+
+                        }
+
+                        showDialog = false
+
+
+                    }) {
+                        Text(
+                            "Camera",color = Color(0xFF1B5E20)
+                        )
+                    }
+
+
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+
+
+                        } else {
+
+                            val intent = Intent(
+                                Intent.ACTION_PICK,
+                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                            )
+                            galleryLauncher.launch(intent)
+                        }
+                        showDialog = false
+                    }) {
+                        Text(
+                            "Storage", color = Color(0xFF1B5E20)
+                        )
+                    }
+                },
+                shape = RoundedCornerShape(16.dp),
+                containerColor  = Color(0xFFC6FCC9)
+            )
+        }
+
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         Text(
             text = "Plant Identifier",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF1B5E20)
         )
-        Text(
-            text = "Upload a plant image to discover its species",
-            fontSize = 14.sp,
-            color = Color(0xFF558B2F),
-            textAlign = TextAlign.Center
-        )
+
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -119,7 +283,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(320.dp)
-                    .clickable {  },
+                    .clickable { },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
@@ -160,7 +324,7 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(100.dp))
 
         // Buttons Row
         if (selectedImageUri != null) {
@@ -170,9 +334,13 @@ fun HomeScreen(
                     .height(56.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Search Button
+
                 Button(
-                    onClick = { /* Handle search */ },
+                    onClick = {
+
+
+
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
@@ -198,7 +366,11 @@ fun HomeScreen(
 
 
                 OutlinedButton(
-                    onClick = {  },
+                    onClick = {
+
+                        showDialog = true
+
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
@@ -222,7 +394,9 @@ fun HomeScreen(
             }
         } else {
             Button(
-                onClick = {  },
+                onClick = {
+                    showDialog = true
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -246,6 +420,8 @@ fun HomeScreen(
                 )
             }
         }
+
+
 
         Spacer(modifier = Modifier.weight(1f))
 
