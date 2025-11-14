@@ -23,17 +23,17 @@ class HomeViewmodel @Inject constructor(private val plantUseCase: PlantUseCase) 
     val uiState = _uiState.asStateFlow()
 
 
-    init {
-
-        val imageUrl =
-
-            "https://xpcsvomqvzbqjkauwrre.supabase.co/storage/v1/object/public/profile_images/profile_images/bcQY8dUza6chzMEjVCg7wIkrT6r2.jpg"
-
-
-        fetchPlantData(imageUrl)
-
-
-    }
+//    init {
+//
+//        val imageUrl =
+//
+//            "https://xpcsvomqvzbqjkauwrre.supabase.co/storage/v1/object/public/profile_images/profile_images/bcQY8dUza6chzMEjVCg7wIkrT6r2.jpg"
+//
+//
+//        fetchPlantData(imageUrl)
+//
+//
+//    }
 
 
     fun fetchPlantData(image: String) {

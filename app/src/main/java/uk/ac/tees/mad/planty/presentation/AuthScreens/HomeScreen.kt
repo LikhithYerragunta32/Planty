@@ -4,11 +4,13 @@ package uk.ac.tees.mad.planty.presentation.AuthScreens
 import android.Manifest
 import android.app.Activity
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Base64
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -17,6 +19,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +31,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -38,6 +44,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -61,12 +68,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 
 import coil3.compose.AsyncImage
 import uk.ac.tees.mad.planty.R
+import uk.ac.tees.mad.planty.domain.model.DomainPlantData
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.AuthViewmodel
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.HomeViewmodel
+import uk.ac.tees.mad.planty.presentation.UtilScreens.PlantCard
 import java.io.File
 
 @Composable
@@ -78,10 +88,12 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
 
+    val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+
 // URI
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
-    val defaultUri = android.net.Uri.parse(
+    val defaultUri = Uri.parse(
         "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/${R.drawable.default_profile}"
     )
 
@@ -133,7 +145,6 @@ fun HomeScreen(
     }
 
 
-
     //android 13
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(), onResult = { uri ->
@@ -158,7 +169,6 @@ fun HomeScreen(
         })
 
 
-
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
     Column(
@@ -176,14 +186,12 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top)
     ) {
-
-
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
                 title = {
                     Text(
-                        "Select plant image",color = Color(0xFF1B5E20)
+                        "Select plant image", color = Color(0xFF1B5E20)
                     )
                 },
                 text = {
@@ -210,7 +218,7 @@ fun HomeScreen(
 
                     }) {
                         Text(
-                            "Camera",color = Color(0xFF1B5E20)
+                            "Camera", color = Color(0xFF1B5E20)
                         )
                     }
 
@@ -242,23 +250,17 @@ fun HomeScreen(
                     }
                 },
                 shape = RoundedCornerShape(16.dp),
-                containerColor  = Color(0xFFC6FCC9)
+                containerColor = Color(0xFFE8FDEA)
             )
         }
-
-
         Spacer(modifier = Modifier.height(20.dp))
 
-        Text(
-            text = "Plant Identifier",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF1B5E20)
-        )
-
-
-
-        Spacer(modifier = Modifier.height(16.dp))
+//        Text(
+//            text = "Plant Identifier",
+//            fontSize = 32.sp,
+//            fontWeight = FontWeight.Bold,
+//            color = Color(0xFF1B5E20)
+//        )
 
 
         if (selectedImageUri != null) {
@@ -283,7 +285,9 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(320.dp)
-                    .clickable { },
+                    .clickable {
+                        showDialog = true
+                    },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
@@ -324,7 +328,63 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(100.dp))
+
+        val samplePlants = listOf(
+            DomainPlantData(
+                plantName = "Solanum lycopersicum",
+                probability = 0.92,
+                commonNames = listOf("Tomato", "Garden tomato"),
+                infoUrl = "https://en.wikipedia.org/wiki/Tomato"
+            ),
+            DomainPlantData(
+                plantName = "Lactuca sativa",
+                probability = 0.65,
+                commonNames = listOf("Lettuce", "Garden lettuce"),
+                infoUrl = "https://en.wikipedia.org/wiki/Lettuce"
+            ),
+            DomainPlantData(
+                plantName = "Capsicum annuum",
+                probability = 0.38,
+                commonNames = listOf("Bell pepper", "Sweet pepper"),
+                infoUrl = null
+            ),
+            DomainPlantData(
+                plantName = "Rosa canina",
+                probability = 0.25,
+                commonNames = listOf("Dog rose", "Wild rose"),
+                infoUrl = null
+            ),
+            DomainPlantData(
+                plantName = "Fragaria × ananassa",
+                probability = 0.88,
+                commonNames = listOf("Strawberry"),
+                infoUrl = "https://en.wikipedia.org/wiki/Strawberry"
+            )
+        )
+
+
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(samplePlants) { plant ->
+                    PlantCard(plantData = plant)
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
+        Spacer(modifier = Modifier.weight(1f))
 
         // Buttons Row
         if (selectedImageUri != null) {
@@ -338,7 +398,11 @@ fun HomeScreen(
                 Button(
                     onClick = {
 
+                        val base64Image = uriToBase64(context, uri)
 
+                        homeViewModel.fetchPlantData(
+                            image = base64Image
+                        )
 
                     },
                     modifier = Modifier
@@ -349,19 +413,29 @@ fun HomeScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        modifier = Modifier.size(20.dp),
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Search",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
+
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            strokeWidth = 3.dp,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search",
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Search",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White
+                        )
+                    }
+
                 }
 
 
@@ -421,11 +495,6 @@ fun HomeScreen(
             }
         }
 
-
-
-        Spacer(modifier = Modifier.weight(1f))
-
-
         Text(
             text = "Tips: Take clear photos in good lighting",
             fontSize = 12.sp,
@@ -439,3 +508,9 @@ fun HomeScreen(
 }
 
 
+fun uriToBase64(context: Context, imageUri: Uri): String {
+    val inputStream = context.contentResolver.openInputStream(imageUri)
+    val bytes = inputStream?.readBytes()
+    inputStream?.close()
+    return Base64.encodeToString(bytes, Base64.DEFAULT)
+}
