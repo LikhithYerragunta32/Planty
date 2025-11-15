@@ -14,13 +14,17 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import uk.ac.tees.mad.planty.data.remote.api.PlantApi
+import uk.ac.tees.mad.planty.data.remote.api.TrefleApi
 import uk.ac.tees.mad.planty.data.repoImpl.NetworkConnectivityObserverImpl
 import uk.ac.tees.mad.planty.data.repoImpl.PlantRepositoryImpl
 import uk.ac.tees.mad.planty.domain.reposiotry.NetworkConnectivityObserver
 import uk.ac.tees.mad.planty.domain.reposiotry.PlantRepository
 import uk.ac.tees.mad.planty.domain.reposiotry.usecase.PlantUseCase
+import uk.ac.tees.mad.planty.domain.reposiotry.usecase.TrefleUseCase
+import javax.inject.Named
 
 import javax.inject.Singleton
+import kotlin.jvm.java
 
 
 @Module
@@ -32,6 +36,7 @@ object HiltModule {
     fun provideCoroutineScope(): CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     @Provides
+    @Singleton
     fun provideNetworkConnectivityObserver(
         @ApplicationContext context: Context,
         scope: CoroutineScope,
@@ -43,6 +48,7 @@ object HiltModule {
 
     @Provides
     @Singleton
+    @Named("plantApi")
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
             .baseUrl("https://api.plant.id/")
@@ -52,23 +58,53 @@ object HiltModule {
 
     @Provides
     @Singleton
-    fun providePlantApi(retrofit: Retrofit): PlantApi {
+    @Named("TrefleApi")
+    fun provideRetrofit2(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://trefle.io/api/v1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun providePlantApi( @Named("plantApi") retrofit: Retrofit): PlantApi {
         return retrofit.create(PlantApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTrefleApi( @Named("TrefleApi") retrofit: Retrofit): TrefleApi {
+        return retrofit.create(TrefleApi::class.java)
     }
 
 
     @Provides
-    fun providePlantRepository(api: PlantApi): PlantRepository {
+    @Singleton
+    fun providePlantRepository(api: PlantApi,trefleApi: TrefleApi): PlantRepository {
         return PlantRepositoryImpl(
-            api = api
+            api = api,
+            trefleApi = trefleApi,
         )
     }
 
 
     @Provides
+    @Singleton
     fun providePlantUseCase(plantRepository: PlantRepository): PlantUseCase{
 
         return PlantUseCase(
+            plantRepository = plantRepository
+        )
+
+
+    }
+
+    @Provides
+    @Singleton
+    fun provideTrefleUseCase(plantRepository: PlantRepository): TrefleUseCase{
+
+        return TrefleUseCase(
             plantRepository = plantRepository
         )
 

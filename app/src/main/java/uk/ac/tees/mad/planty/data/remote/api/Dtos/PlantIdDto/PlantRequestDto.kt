@@ -1,5 +1,6 @@
-package uk.ac.tees.mad.planty.data.remote.api
+package uk.ac.tees.mad.planty.data.remote.api.Dtos.PlantIdDto
 
+import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
 
@@ -34,5 +35,6 @@ data class Suggestion(
 @Serializable
 data class Details(
     val url: String,
-    val common_names: List<String>,
+    @SerializedName("common_names")
+    val commonNames: List<String>,
 )

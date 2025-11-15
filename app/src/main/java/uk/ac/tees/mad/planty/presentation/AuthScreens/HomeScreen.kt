@@ -18,6 +18,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 
@@ -34,7 +35,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PhotoLibrary
@@ -77,6 +80,7 @@ import uk.ac.tees.mad.planty.domain.model.DomainPlantData
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.AuthViewmodel
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.HomeViewmodel
 import uk.ac.tees.mad.planty.presentation.UtilScreens.PlantCard
+import uk.ac.tees.mad.planty.presentation.UtilScreens.TrefleCard
 import java.io.File
 
 @Composable
@@ -89,6 +93,7 @@ fun HomeScreen(
     val context = LocalContext.current
 
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+    val trefleUiState by homeViewModel.trefleUiState.collectAsStateWithLifecycle()
 
 // URI
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -174,6 +179,7 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -182,7 +188,7 @@ fun HomeScreen(
                     )
                 )
             )
-            .padding(24.dp),
+            .padding(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top)
     ) {
@@ -255,12 +261,6 @@ fun HomeScreen(
         }
         Spacer(modifier = Modifier.height(20.dp))
 
-//        Text(
-//            text = "Plant Identifier",
-//            fontSize = 32.sp,
-//            fontWeight = FontWeight.Bold,
-//            color = Color(0xFF1B5E20)
-//        )
 
 
         if (selectedImageUri != null) {
@@ -268,6 +268,7 @@ fun HomeScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(16.dp)
                     .height(320.dp),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -284,6 +285,7 @@ fun HomeScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(16.dp)
                     .height(320.dp)
                     .clickable {
                         showDialog = true
@@ -326,6 +328,16 @@ fun HomeScreen(
                     )
                 }
             }
+            if (uiState.error != null) {
+                Text(
+                    text = "${uiState.error}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFFF3B3B),
+                )
+            }
+
+
         }
 
 
@@ -363,24 +375,94 @@ fun HomeScreen(
         )
 
 
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(samplePlants) { plant ->
-                    PlantCard(plantData = plant)
+        Column {
+
+
+            uiState.data?.let { plants ->
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(plants) { plant ->
+                        PlantCard(
+                            plantData = plant,
+                            onCardClick = { plantName ->
+                                homeViewModel.fetchPlantId(plantName)
+                            }
+                        )
+                    }
                 }
             }
 
 
+            if (trefleUiState.isLoading) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Expected result",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF2E7D32),
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color(0xFF2E7D32),
+                        strokeWidth = 2.dp
+                    )
+                }
+            }
+
+            trefleUiState.data?.let { trefleData ->
+
+                if (trefleUiState.error != null) {
+                    Text(
+                        text = "${uiState.error}",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFFFF3B3B),
+                    )
+                } else {
+                    Text(
+                        text = "Expected result",
+                        Modifier.padding(horizontal = 16.dp),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF2E7D32),
+                    )
+                }
+
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(
+                        trefleData
+                    ) {
+                        TrefleCard(
+                            plant = it,
+                            isLoading = trefleUiState.isLoading,
+                            onCardClick = {
+
+                            }
+                        )
+                    }
+
+                }
 
 
-
-
-
-
+            }
+        }
 
 
 
@@ -391,6 +473,7 @@ fun HomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(10.dp)
                     .height(56.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -403,6 +486,7 @@ fun HomeScreen(
                         homeViewModel.fetchPlantData(
                             image = base64Image
                         )
+
 
                     },
                     modifier = Modifier
@@ -473,6 +557,7 @@ fun HomeScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(16.dp)
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF2E7D32)
@@ -494,16 +579,18 @@ fun HomeScreen(
                 )
             }
         }
+        if (selectedImageUri == null) {
+            Text(
+                text = "Tips: Take clear photos in good lighting",
+                fontSize = 12.sp,
+                color = Color(0xFF558B2F),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+        }
 
-        Text(
-            text = "Tips: Take clear photos in good lighting",
-            fontSize = 12.sp,
-            color = Color(0xFF558B2F),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        )
     }
 }
 

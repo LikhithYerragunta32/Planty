@@ -1,18 +1,19 @@
 package uk.ac.tees.mad.planty.domain.reposiotry.usecase
 
-import com.google.android.play.integrity.internal.q
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import uk.ac.tees.mad.planty.domain.reposiotry.PlantRepository
+import java.lang.reflect.Constructor
+import javax.inject.Inject
 
-class PlantUseCase( private val plantRepository: PlantRepository) {
+class TrefleUseCase (private val plantRepository: PlantRepository){
 
 
-    operator fun invoke(image : String) = flow {
+    operator fun invoke(plantName: String) = flow {
         emit(
-            value = plantRepository.identifyPlant(image)
+            value = plantRepository.Trefle(plantName)
         )
     }.catch { error ->
 
@@ -20,6 +21,4 @@ class PlantUseCase( private val plantRepository: PlantRepository) {
 
     }.flowOn(Dispatchers.IO)
 
-
 }
-

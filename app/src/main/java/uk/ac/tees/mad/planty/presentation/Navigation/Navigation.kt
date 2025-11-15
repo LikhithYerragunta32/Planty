@@ -29,6 +29,9 @@ fun NavigationCompose(modifier: Modifier = Modifier, navController: NavHostContr
 //    https://plant.id/api/v3
 //    ENZF56UDT2C8iUX2ueep5OoNTDILmnsGLZRbOWtlYPo2K1hRLJ
 
+//    Trefle.io Api Key
+//    usr-wxVNIpI_JSulNq0RAdDxUavms5b4hBIH9tv7GUvSQPc
+
     var currentUser by remember { mutableStateOf(auth.currentUser) }
 
     DisposableEffect(Unit) {
