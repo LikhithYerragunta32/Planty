@@ -1,4 +1,4 @@
-package uk.ac.tees.mad.planty.domain.reposiotry.usecase
+package uk.ac.tees.mad.planty.domain.usecase
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch

@@ -1,25 +1,21 @@
-package uk.ac.tees.mad.planty.domain.reposiotry.usecase
+package uk.ac.tees.mad.planty.domain.usecase
 
-import com.google.android.play.integrity.internal.q
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import uk.ac.tees.mad.planty.domain.reposiotry.PlantRepository
 
-class PlantUseCase( private val plantRepository: PlantRepository) {
+class TreflePlantDetailsUseCase(private val plantRepository: PlantRepository) {
 
 
-    operator fun invoke(image : String) = flow {
+    operator fun invoke(plantName: Int) = flow {
         emit(
-            value = plantRepository.identifyPlant(image)
+            value = plantRepository.PlantDetailTrefle(plantName)
         )
     }.catch { error ->
 
         emit(Result.failure(error))
 
     }.flowOn(Dispatchers.IO)
-
-
 }
-

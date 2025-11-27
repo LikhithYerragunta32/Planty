@@ -1,4 +1,5 @@
 package uk.ac.tees.mad.planty.presentation.Navigation
+
 import AuthScreen
 import SignUpScreen
 import androidx.compose.runtime.Composable
@@ -18,9 +19,16 @@ import uk.ac.tees.mad.planty.presentation.AuthScreens.LogInScreen
 
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.AuthViewmodel
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.HomeViewmodel
+import uk.ac.tees.mad.planty.presentation.Screens.MyPlantScreen
+import uk.ac.tees.mad.planty.presentation.Screens.ProfileScreen
 
 @Composable
-fun NavigationCompose(modifier: Modifier = Modifier, navController: NavHostController, authViewModel: AuthViewmodel, homeViewModel: HomeViewmodel) {
+fun NavigationCompose(
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    authViewModel: AuthViewmodel,
+    homeViewModel: HomeViewmodel,
+) {
 
     val auth = FirebaseAuth.getInstance()
 
@@ -95,7 +103,14 @@ fun NavigationCompose(modifier: Modifier = Modifier, navController: NavHostContr
             )
 
         }
+        composable<Routes.MyPlantScreen> {
 
+            MyPlantScreen()
+        }
+        composable<Routes.ProfileScreen> {
+
+            ProfileScreen()
+        }
 
     }
 

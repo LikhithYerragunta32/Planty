@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.planty.presentation.HIltViewmodels
 
+import android.R.attr.data
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,37 +11,53 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.planty.domain.model.DomainPlantData
+import uk.ac.tees.mad.planty.domain.model.DomainPlantDetail
 import uk.ac.tees.mad.planty.domain.model.DomainTrefleData
 import uk.ac.tees.mad.planty.domain.reposiotry.PlantRepository
-import uk.ac.tees.mad.planty.domain.reposiotry.usecase.PlantUseCase
-import uk.ac.tees.mad.planty.domain.reposiotry.usecase.TrefleUseCase
+import uk.ac.tees.mad.planty.domain.usecase.PlantUseCase
+import uk.ac.tees.mad.planty.domain.usecase.TreflePlantDetailsUseCase
+import uk.ac.tees.mad.planty.domain.usecase.TrefleUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewmodel @Inject constructor(
+
     private val plantUseCase: PlantUseCase,
     private val trefleUseCase: TrefleUseCase,
+    private val treflePlantDetailsUseCase: TreflePlantDetailsUseCase,
     private val plantRepository: PlantRepository,
-) : ViewModel() {
+
+
+    ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PlantScreenData.UiState())
     val uiState = _uiState.asStateFlow()
 
     private val _trefleUiState = MutableStateFlow(PlantScreenData.TrefleUiState())
     val trefleUiState = _trefleUiState.asStateFlow()
+
+    private val _plantDetails = MutableStateFlow(PlantScreenData.PlantDetailUiState())
+    val plantDetails = _plantDetails.asStateFlow()
+
+
     init {
+        viewModelScope.launch {
+            plantRepository.PlantDetailTrefle(
+                plantId = 53325
+            )
+        }
 
 
     }
 
-//    fun getId(plantName: String) {
-//        viewModelScope.launch {
-//            plantRepository.Trefle(
-//                plantName = plantName
-//            )
-//
-//        }
-//    }
+    fun getId(plantName: String) {
+        viewModelScope.launch {
+            plantRepository.Trefle(
+                plantName = plantName
+            )
+
+        }
+    }
 
     fun fetchPlantId(plantName: String) {
         viewModelScope.launch {
@@ -86,6 +103,25 @@ class HomeViewmodel @Inject constructor(
         }
     }
 
+    fun fetPlantDetail(plantId: Int) {
+        viewModelScope.launch {
+            treflePlantDetailsUseCase.invoke(plantId)
+                .onStart {
+                    _plantDetails.update {
+                        PlantScreenData.PlantDetailUiState(isLoading = true)
+                    }
+                }.collect { result ->
+                    result.onSuccess { data ->
+
+                        _plantDetails.update { PlantScreenData.PlantDetailUiState(data = data) }
+                    }.onFailure { error ->
+                        _plantDetails.update { PlantScreenData.PlantDetailUiState(error = error.message.toString()) }
+                        Log.e("PlantViewModel", " Error fetching plant data: ${error.message}")
+                    }
+                }
+        }
+    }
+
 }
 
 data object PlantScreenData {
@@ -95,7 +131,7 @@ data object PlantScreenData {
         val error: String = "",
         val data: List<DomainPlantData>? = null,
 
-    )
+        )
 
     data class TrefleUiState(
 
@@ -103,7 +139,15 @@ data object PlantScreenData {
         val error: String = "",
         val data: List<DomainTrefleData>? = null,
 
-    )
+        )
+
+    data class PlantDetailUiState(
+
+        val isLoading: Boolean = false,
+        val error: String = "",
+        val data: DomainPlantDetail? = null,
+
+        )
 
 }
 

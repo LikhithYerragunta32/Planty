@@ -2,22 +2,31 @@ package uk.ac.tees.mad.planty.data.repoImpl
 
 import Plant
 import TrefleIdDto
+import android.R.attr.apiKey
 import android.R.attr.data
 import android.util.Log
 import com.google.gson.Gson
 import uk.ac.tees.mad.planty.data.Mapper.toDomainPlantTrefleData
 
 import uk.ac.tees.mad.planty.data.Mapper.toPlantInfoList
+import uk.ac.tees.mad.planty.data.remote.api.Dtos.TreflePlantDetailDto.TreflePlantDetailDto
 import uk.ac.tees.mad.planty.data.remote.api.PlantApi
+import uk.ac.tees.mad.planty.data.remote.api.PlantDetailApi
 import uk.ac.tees.mad.planty.data.remote.api.PlantRequest
 import uk.ac.tees.mad.planty.data.remote.api.TrefleApi
 import uk.ac.tees.mad.planty.domain.model.DomainPlantData
+import uk.ac.tees.mad.planty.domain.model.DomainPlantDetail
 import uk.ac.tees.mad.planty.domain.model.DomainTrefleData
+import uk.ac.tees.mad.planty.domain.model.toDomainPlantDetail
 
 import uk.ac.tees.mad.planty.domain.reposiotry.PlantRepository
 import uk.ac.tees.mad.planty.presentation.AuthScreens.LogInScreen
 
-class PlantRepositoryImpl(private val api: PlantApi, private val trefleApi: TrefleApi) :
+class PlantRepositoryImpl(
+    private val api: PlantApi,
+    private val trefleApi: TrefleApi,
+    private val plantDetailApi: PlantDetailApi,
+) :
     PlantRepository {
 
 
@@ -78,6 +87,42 @@ class PlantRepositoryImpl(private val api: PlantApi, private val trefleApi: Tref
             Log.e("taggg", "Error fetching data: ${e.message}", e)
             Result.failure(e)
         }
+    }
+
+
+//    usr-wxVNIpI_JSulNq0RAdDxUavms5b4hBIH9tv7GUvSQPc
+
+//    GET https://trefle.io/api/v1/plants/53325?token=usr-wxVNIpI_JSulNq0RAdDxUavms5b4hBIH9tv7GUvSQPc
+
+    override suspend fun PlantDetailTrefle(plantId: Int): Result<DomainPlantDetail> {
+
+
+        return try {
+            val response = plantDetailApi.getPlantDetails(
+                id = plantId,
+                apiKey = "usr-wxVNIpI_JSulNq0RAdDxUavms5b4hBIH9tv7GUvSQPc"
+            )
+
+            if (response.isSuccessful) {
+                val data = response.body()
+                Log.d(
+                    "PlantDetail",
+                    "Fetched details for plant ID: $plantId -> ${data?.data?.common_name}"
+                )
+
+                data?.let {
+                    Result.success(data.toDomainPlantDetail())
+                } ?: Result.failure(Exception("Empty response body"))
+            } else {
+                Log.e("PlantDetail", "API error: ${response.code()} ${response.message()}")
+                Result.failure(Exception("API error: ${response.code()} ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Log.e("PlantDetail", "Error fetching data: ${e.message}", e)
+            Result.failure(e)
+        }
+
+
     }
 
 }
