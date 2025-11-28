@@ -68,7 +68,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -81,7 +80,6 @@ import uk.ac.tees.mad.planty.R
 import uk.ac.tees.mad.planty.domain.model.DomainPlantData
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.AuthViewmodel
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.HomeViewmodel
-import uk.ac.tees.mad.planty.presentation.HIltViewmodels.PlantScreenData
 import uk.ac.tees.mad.planty.presentation.UtilScreens.PlantCard
 import uk.ac.tees.mad.planty.presentation.UtilScreens.TrefleCard
 import java.io.File
@@ -603,168 +601,4 @@ fun uriToBase64(context: Context, imageUri: Uri): String {
     val bytes = inputStream?.readBytes()
     inputStream?.close()
     return Base64.encodeToString(bytes, Base64.DEFAULT)
-}
-
-@Preview(showBackground = true, name = "HomeScreen - Planty - No Image Selected")
-@Composable
-fun HomeScreenPreview_NoImage() {
-    var showDialog by rememberSaveable { mutableStateOf(false) }
-    val uiState = PlantScreenData.UiState(isLoading = false, error = "null")
-    val trefleUiState = PlantScreenData.TrefleUiState(isLoading = false, data = null, error = "null")
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFFF0F4E8), Color(0xFFE8F5E9))
-                )
-            )
-            .padding(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top)
-    ) {
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .height(320.dp)
-                .clickable { showDialog = true },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            border = BorderStroke(2.dp, Color(0xFF81C784))
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    Icons.Default.PhotoLibrary,
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color(0xFF2E7D32)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Tap to select image", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF2E7D32))
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Choose a plant photo from your gallery", fontSize = 12.sp, color = Color(0xFF558B2F))
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(
-            onClick = { showDialog = true },
-            modifier = Modifier.fillMaxWidth().padding(16.dp).height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Icon(Icons.Default.PhotoLibrary, contentDescription = null, tint = Color.White)
-            Spacer(Modifier.width(8.dp))
-            Text("Select Image", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-        }
-
-        Text(
-            text = "Tips: Take clear photos in good lighting",
-            fontSize = 12.sp,
-            color = Color(0xFF558B2F),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "HomeScreen - Planty - Image Selected + Results")
-@Composable
-fun HomeScreenPreview_WithImageAndResults() {
-    var showDialog by rememberSaveable { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFFF0F4E8), Color(0xFFE8F5E9))
-                )
-            )
-            .padding(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top)
-    ) {
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(16.dp).height(320.dp),
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-        ) {
-            AsyncImage(
-                model = "https://images.unsplash.com/photo-1453904300235-0f2f60d91a34?w=800",
-                contentDescription = "Selected plant",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-
-        // Sample identified plants
-        LazyRow(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(
-                listOf(
-                    DomainPlantData("Monstera deliciosa", 0.96, listOf("Swiss Cheese Plant"), null),
-                    DomainPlantData("Ficus lyrata", 0.78, listOf("Fiddle Leaf Fig"), null),
-                    DomainPlantData("Sansevieria trifasciata", 0.61, listOf("Snake Plant"), null)
-                )
-            ) { plant ->
-                PlantCard(plantData = plant, onCardClick = {})
-            }
-        }
-
-        Text(
-            text = "Expected result",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF2E7D32)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp).height(56.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Button(
-                onClick = { },
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(Icons.Default.Search, contentDescription = null, tint = Color.White)
-                Spacer(Modifier.width(8.dp))
-                Text("Search", color = Color.White, fontWeight = FontWeight.SemiBold)
-            }
-
-            OutlinedButton(
-                onClick = { showDialog = true },
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                border = BorderStroke(2.dp, Color(0xFF2E7D32)),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFF2E7D32))
-                Spacer(Modifier.width(8.dp))
-                Text("Change", color = Color(0xFF2E7D32), fontWeight = FontWeight.SemiBold)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-    }
 }
