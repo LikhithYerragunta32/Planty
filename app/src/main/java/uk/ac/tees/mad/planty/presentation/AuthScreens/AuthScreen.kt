@@ -26,6 +26,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.sin
@@ -156,5 +157,102 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController) {
         }
 
         Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+@Preview(showBackground = true, name = "Auth Screen - Planty")
+@Composable
+fun AuthScreenPreview() {
+    val cornerShape = RoundedCornerShape(14.dp)
+    val bgColor = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFF4CAF50),
+            Color(0xFF81C784),
+            Color(0xFF4CAF50)
+        )
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(brush = bgColor)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .align(Alignment.TopCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(60.dp))
+
+            Image(
+                painter = painterResource(id = R.drawable.authpic),
+                contentDescription = "Planty illustration",
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Nurture your plants with AI — get smart insights, weather updates, and care guidance all in one place",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = Color.Black,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight.Light
+                ),
+                modifier = Modifier.padding(horizontal = 20.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            OutlinedButton(
+                onClick = { },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)
+                    .height(52.dp),
+                shape = cornerShape,
+                border = BorderStroke(2.dp, Color(0xFF009A06)),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.Green
+                )
+            ) {
+                Text(
+                    "Let's get started",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+
+            TextButton(onClick = { }) {
+                Text(
+                    buildAnnotatedString {
+                        withStyle(SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
+                            append("Already have an account? ")
+                        }
+                        withStyle(
+                            SpanStyle(
+                                color = Color(0xFF00FF1E),
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Medium
+                            )
+                        ) { append("Log in") }
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }
