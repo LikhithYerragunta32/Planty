@@ -44,7 +44,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -237,125 +236,6 @@ fun LogInScreen(
 
                         withStyle(
                             style = SpanStyle(
-                                color = Color(0xFF00FF1E),
-                                textDecoration = TextDecoration.Underline,
-                                fontWeight = FontWeight.Medium
-                            )
-                        ) { append("Sign Up") }
-                    },
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-        }
-    }
-}
-
-
-@Preview(showBackground = true, name = "Log In Screen - Planty")
-@Composable
-fun LogInScreenPreview() {
-    val bgColor = Brush.verticalGradient(
-        colors = listOf(Color(0xFF4CAF50), Color(0xFF81C784), Color(0xFF4CAF50))
-    )
-    val cornerShape = RoundedCornerShape(14.dp)
-
-    var email by rememberSaveable { mutableStateOf("user@example.com") }
-    var password by rememberSaveable { mutableStateOf("Pass@123") }
-    var passwordVisible by rememberSaveable { mutableStateOf(true) }
-    var isLoading by rememberSaveable { mutableStateOf(false) }
-
-    val isEmailValid = Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    val isPasswordValid = Regex("^(?=.*[!@#\$%^&*(),.?\":{}|<>]).{6,10}\$").matches(password)
-    val isFormValid = isEmailValid && isPasswordValid
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(brush = bgColor)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(100.dp))
-
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                modifier = Modifier.fillMaxWidth(),
-                shape = cornerShape,
-                isError = email.isNotEmpty() && !isEmailValid
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                modifier = Modifier.fillMaxWidth(),
-                shape = cornerShape,
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            painter = painterResource(
-                                if (passwordVisible) R.drawable.baseline_visibility_24
-                                else R.drawable.outline_visibility_off_24
-                            ),
-                            contentDescription = null,
-                            tint = Color.Black
-                        )
-                    }
-                },
-                isError = password.isNotEmpty() && !isPasswordValid
-            )
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OutlinedButton(
-                onClick = { },
-                enabled = isFormValid,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp)
-                    .height(52.dp),
-                shape = cornerShape,
-                border = BorderStroke(2.dp, Color(0xFF009A06)),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = Color.Green
-                )
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(color = Color.Black, strokeWidth = 2.dp, modifier = Modifier.size(30.dp))
-                } else {
-                    Text("Log In", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TextButton(onClick = { }) {
-                Text(
-                    buildAnnotatedString {
-                        withStyle(SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
-                            append("Don’t have an account? ")
-                        }
-                        withStyle(
-                            SpanStyle(
                                 color = Color(0xFF00FF1E),
                                 textDecoration = TextDecoration.Underline,
                                 fontWeight = FontWeight.Medium

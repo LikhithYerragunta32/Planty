@@ -1,6 +1,8 @@
 package uk.ac.tees.mad.planty.presentation.Navigation
 
 import AuthScreen
+
+
 import SignUpScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -12,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.example.plantapp.ui.screens.PlantDetailScreen
 import com.google.firebase.auth.FirebaseAuth
 
 import uk.ac.tees.mad.planty.presentation.AuthScreens.HomeScreen
@@ -76,8 +80,7 @@ fun NavigationCompose(
 
 
             SignUpScreen(
-                authViewModel = authViewModel,
-                navController = navController
+                authViewModel = authViewModel, navController = navController
             )
 
         }
@@ -105,11 +108,32 @@ fun NavigationCompose(
         }
         composable<Routes.MyPlantScreen> {
 
-            MyPlantScreen()
+            MyPlantScreen(
+
+                homeViewModel = homeViewModel,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+
+                navController = navController,
+            )
+
         }
         composable<Routes.ProfileScreen> {
 
-            ProfileScreen()
+            ProfileScreen(navController,homeViewModel)
+        }
+        composable<Routes.PlantDetailScreen> {
+            val toRoute = it.toRoute<Routes.PlantDetailScreen>()
+            PlantDetailScreen(
+                homeViewmodel = homeViewModel,
+                plantId = toRoute.plantId,
+
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+
         }
 
     }

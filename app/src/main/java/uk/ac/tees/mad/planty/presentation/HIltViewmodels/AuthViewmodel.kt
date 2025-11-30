@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.planty.presentation.HIltViewmodels
 
 
+import android.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -50,6 +51,7 @@ class AuthViewmodel @Inject constructor(): ViewModel() {
                                 email = email,
                                 uid = userId,
                                 passkey = password,
+                                savedPlant = emptyList()
                             )
 
                             firestore.collection("user").document(userId).set(userInfo)
@@ -98,6 +100,20 @@ class AuthViewmodel @Inject constructor(): ViewModel() {
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -108,6 +124,7 @@ data class PostUserInfo(
     val email: String,
     val uid: String,
     val passkey: String,
+    val savedPlant: List<String>
     )
 
 data class GetUserInfo(
@@ -116,4 +133,5 @@ data class GetUserInfo(
     val email: String = "",
     val uid: String = "",
     val passkey: String = "",
+    val savedPlant: List<String> = emptyList()
     )

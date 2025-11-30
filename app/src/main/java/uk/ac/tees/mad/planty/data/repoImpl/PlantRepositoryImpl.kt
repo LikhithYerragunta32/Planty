@@ -94,6 +94,7 @@ class PlantRepositoryImpl(
 
 //    GET https://trefle.io/api/v1/plants/53325?token=usr-wxVNIpI_JSulNq0RAdDxUavms5b4hBIH9tv7GUvSQPc
 
+
     override suspend fun PlantDetailTrefle(plantId: Int): Result<DomainPlantDetail> {
 
 

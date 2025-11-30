@@ -44,7 +44,7 @@ import uk.ac.tees.mad.planty.domain.model.DomainTrefleData
 fun TrefleCard(
     plant: DomainTrefleData,
     isLoading: Boolean,
-    onCardClick: (plantName: String) -> Unit,
+    onCardClick: (plantName: Int) -> Unit,
 ) {
     val textGreen = Color(0xFF2E7D32)
     val bgGreen = Color(0xFFE8F5E9)
@@ -54,7 +54,7 @@ fun TrefleCard(
             .width(230.dp)
             .height(150.dp)
             .clickable {
-                plant.common_name?.let { onCardClick(it) }
+                plant.common_name?.let { onCardClick(plant.id) }
             },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(

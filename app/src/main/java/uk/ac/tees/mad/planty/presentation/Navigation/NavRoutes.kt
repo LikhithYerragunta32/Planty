@@ -23,6 +23,9 @@ sealed class Routes {
 
     @Serializable
     data object ProfileScreen
+    @Serializable
+    data class PlantDetailScreen( val plantId: Int)
+
 
 
 }

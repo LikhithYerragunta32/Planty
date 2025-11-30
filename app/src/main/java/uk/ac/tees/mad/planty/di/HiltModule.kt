@@ -1,7 +1,9 @@
 package uk.ac.tees.mad.planty.di
 
 
+import android.app.Application
 import android.content.Context
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,6 +14,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import uk.ac.tees.mad.planty.data.local.AppDatabase
+import uk.ac.tees.mad.planty.data.local.PlantDao
 import uk.ac.tees.mad.planty.data.remote.api.PlantApi
 import uk.ac.tees.mad.planty.data.remote.api.PlantDetailApi
 import uk.ac.tees.mad.planty.data.remote.api.TrefleApi
@@ -132,6 +136,16 @@ object HiltModule {
 
     }
 
+    @Provides
+    @Singleton
+    fun providesDB(app: Application): AppDatabase {
+        return Room.databaseBuilder(app, AppDatabase::class.java,"app_db").build()
+    }
+
+    @Provides
+    fun providesDao(db: AppDatabase): PlantDao{
+        return db.plantDao()
+    }
 
 
 }

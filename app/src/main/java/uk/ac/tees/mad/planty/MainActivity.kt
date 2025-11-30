@@ -106,7 +106,6 @@ class MainActivity : ComponentActivity() {
             var bgColors by remember { mutableStateOf(Color.Red) }
             var showStatusBar by remember { mutableStateOf(false) }
             val status by connectivityObserver.networkStatus.collectAsStateWithLifecycle()
-            var selectedIndex by rememberSaveable { mutableIntStateOf(1) }
 
 
 
@@ -139,51 +138,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        NavigationBar(
-                            modifier = Modifier.height(70.dp),
-                            containerColor = Color(0xFF339838)
-                        ) {
-                            navItems.forEachIndexed { index, navItem ->
-                                val isSelected = selectedIndex == index
-                                val currentRoute = navController.currentDestination?.route
-                                NavigationBarItem(
-                                    modifier = Modifier.offset(y = 10.dp),
-                                    selected = false,
-                                    onClick = {
-                                        selectedIndex = index
 
-                                        when (selectedIndex) {
-
-                                            0 -> if (currentRoute != Routes.MyPlantScreen::class.qualifiedName) {
-                                                navController.navigate(Routes.MyPlantScreen(test = "Abhishek"))
-                                            }
-                                            1 -> if (currentRoute != Routes.HomeScreen::class.qualifiedName) {
-                                                navController.navigate(Routes.HomeScreen)
-                                            }
-                                            2 -> if (currentRoute != Routes.ProfileScreen::class.qualifiedName) {
-                                                navController.navigate(Routes.ProfileScreen)
-                                            }
-                                        }
-                                    },
-                                    icon = {
-                                        Icon(
-                                            imageVector = if (isSelected) navItem.filledIcon else navItem.outlinedIcon,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.background
-
-                                        )
-                                    },
-                                    label = {
-                                        Text(
-                                            text = navItem.title,
-                                            modifier = Modifier.offset(y = (-4).dp),
-                                            color = MaterialTheme.colorScheme.background
-                                        )
-                                    }
-                                )
-                            }
-
-                        }
                         NetworkStatusBar(
                             showMessageBar = showStatusBar,
                             message = message,
