@@ -24,7 +24,6 @@ import uk.ac.tees.mad.planty.domain.usecase.PlantUseCase
 import uk.ac.tees.mad.planty.domain.usecase.TreflePlantDetailsUseCase
 import uk.ac.tees.mad.planty.domain.usecase.TrefleUseCase
 import javax.inject.Inject
-import kotlin.jvm.java
 
 @HiltViewModel
 class HomeViewmodel @Inject constructor(
@@ -48,6 +47,16 @@ class HomeViewmodel @Inject constructor(
     private val _plantDetailsUiStates = MutableStateFlow(PlantScreenData.PlantDetailUiState())
     val plantDetailsUiStates = _plantDetailsUiStates.asStateFlow()
 
+
+    init {
+        viewModelScope.launch {
+            plantRepository.PlantDetailTrefle(
+                plantId = 53325
+            )
+        }
+
+
+    }
 
 
     fun getId(plantName: String) {
@@ -209,76 +218,8 @@ class HomeViewmodel @Inject constructor(
 
             }
 
-
-        }
-        _isLoading.value = false
-    }
-
-    fun removeCity(plant: String, onResult: (Boolean, String?) -> Unit) {
-        val uid = auth.currentUser?.uid ?: return onResult(false, "User not logged in")
-        val userRef = firestore.collection("user").document(uid)
-
-        userRef.get().addOnSuccessListener { doc ->
-            val likedCities = doc.get("savedPlant") as? List<String> ?: emptyList()
-
-            if (!likedCities.contains(plant)) {
-                onResult(false, "Plant not found in your list")
-            } else {
-                userRef.update("savedPlant", FieldValue.arrayRemove(plant))
-                    .addOnSuccessListener {
-                        onResult(true, "Plant removed successfully")
-                    }.addOnFailureListener { e ->
-                        onResult(false, e.message)
-                    }
-            }
-        }.addOnFailureListener { e ->
-            onResult(false, e.message)
         }
     }
-
-
-
-    private val _currentUserData = MutableStateFlow(GetUserInfo())
-    val currentUserData: StateFlow<GetUserInfo> = _currentUserData
-
-    fun fetchCurrentDonerData() {
-        auth.currentUser?.uid?.let { userId ->
-
-            db.collection("user").document(userId).addSnapshotListener { snapshot, e ->
-
-                if (e != null) {
-
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null && snapshot.exists()) {
-                    val data = snapshot.toObject(GetUserInfo::class.java)
-                    data?.let {
-                        _currentUserData.value = it
-                        Log.d("Firestore","$it")
-                    }
-                }
-            }
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

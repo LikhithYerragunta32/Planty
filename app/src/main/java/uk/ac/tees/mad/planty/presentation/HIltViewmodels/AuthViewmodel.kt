@@ -1,7 +1,6 @@
 package uk.ac.tees.mad.planty.presentation.HIltViewmodels
 
 
-import android.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -124,7 +123,7 @@ data class PostUserInfo(
     val email: String,
     val uid: String,
     val passkey: String,
-    val savedPlant: List<String>
+    val savedPlant: List<Int>
     )
 
 data class GetUserInfo(
@@ -133,5 +132,4 @@ data class GetUserInfo(
     val email: String = "",
     val uid: String = "",
     val passkey: String = "",
-    val savedPlant: List<String> = emptyList()
     )
