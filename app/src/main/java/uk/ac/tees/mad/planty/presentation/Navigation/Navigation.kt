@@ -109,7 +109,12 @@ fun NavigationCompose(
         }
         composable<Routes.MyPlantScreen> {
 
-            MyPlantScreen()
+            MyPlantScreen(
+
+                homeViewmodel = homeViewModel,
+                onBackClick = {},
+            )
+
         }
         composable<Routes.ProfileScreen> {
 
