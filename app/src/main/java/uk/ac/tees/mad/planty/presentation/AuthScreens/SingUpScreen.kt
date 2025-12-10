@@ -46,13 +46,15 @@ fun SignUpScreen(authViewModel: AuthViewmodel, navController: NavHostController)
         passwordVisible = !passwordVisible
     }
 
-    val bgColor = Brush.verticalGradient(
+    val bgColor1 = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF4CAF50),
             Color(0xFF81C784),
             Color(0xFF4CAF50)
         )
     )
+    val bgColor = Color(0xFFE8F5E9)
+    val textColor = Color(0xFF2E7D32)
 
     val context = LocalContext.current
     val cornerShape = RoundedCornerShape(14.dp)
@@ -66,7 +68,7 @@ fun SignUpScreen(authViewModel: AuthViewmodel, navController: NavHostController)
         modifier = Modifier
             .fillMaxSize()
             .padding()
-            .background(brush = bgColor)
+            .background(brush = bgColor1)
     ) {
         Column(
             modifier = Modifier
@@ -87,22 +89,53 @@ fun SignUpScreen(authViewModel: AuthViewmodel, navController: NavHostController)
                         else word
                     }
                 },
-                label = { Text("Full Name") },
+                placeholder = { Text("Name", color = textColor.copy(alpha = 0.6f)) },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                 modifier = Modifier.fillMaxWidth(),
-                shape = cornerShape
+                shape = cornerShape,
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
+                    cursorColor = textColor,
+                    disabledTextColor = textColor,
+                    focusedContainerColor = bgColor,
+                    unfocusedContainerColor = bgColor,
+                    disabledContainerColor = bgColor,
+                    focusedIndicatorColor = textColor,
+                    unfocusedIndicatorColor = textColor,
+                    disabledIndicatorColor = textColor,
+                    focusedLabelColor = textColor,
+                    unfocusedLabelColor = textColor,
+                    disabledLabelColor = textColor
+                )
             )
 
             Spacer(modifier = Modifier.height(18.dp))
+            val errorColor = Color(0xFFD32F2F)
+
 
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                placeholder = { Text("Email", color = textColor.copy(alpha = 0.6f)) },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                 modifier = Modifier.fillMaxWidth(),
                 shape = cornerShape,
-                isError = email.isNotEmpty() && !isEmailValid
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
+                    cursorColor = textColor,
+                    disabledTextColor = textColor,
+                    focusedContainerColor = bgColor,
+                    unfocusedContainerColor = bgColor,
+                    disabledContainerColor = bgColor,
+                    focusedIndicatorColor = textColor,
+                    unfocusedIndicatorColor = textColor,
+                    disabledIndicatorColor = textColor,
+                    focusedLabelColor = textColor,
+                    unfocusedLabelColor = textColor,
+                    disabledLabelColor = textColor
+                )
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -110,7 +143,7 @@ fun SignUpScreen(authViewModel: AuthViewmodel, navController: NavHostController)
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                placeholder = { Text("Password", color = textColor.copy(alpha = 0.6f)) },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                 modifier = Modifier.fillMaxWidth(),
                 shape = cornerShape,
@@ -126,11 +159,26 @@ fun SignUpScreen(authViewModel: AuthViewmodel, navController: NavHostController)
                                 if (passwordVisible) R.drawable.baseline_visibility_24
                                 else R.drawable.outline_visibility_off_24
                             ),
-                            contentDescription = null, tint = Color.Black
+                            contentDescription = null, tint = textColor
                         )
                     }
                 },
-                isError = password.isNotEmpty() && !isPasswordValid
+
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
+                    cursorColor = textColor,
+                    disabledTextColor = textColor,
+                    focusedContainerColor = bgColor,
+                    unfocusedContainerColor = bgColor,
+                    disabledContainerColor = bgColor,
+                    focusedIndicatorColor = textColor,
+                    unfocusedIndicatorColor = textColor,
+                    disabledIndicatorColor = textColor,
+                    focusedLabelColor = textColor,
+                    unfocusedLabelColor = textColor,
+                    disabledLabelColor = textColor
+                )
             )
         }
 

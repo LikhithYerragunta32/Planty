@@ -17,7 +17,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.plantapp.ui.screens.PlantDetailScreen
 import com.google.firebase.auth.FirebaseAuth
-import okhttp3.Route
 
 import uk.ac.tees.mad.planty.presentation.AuthScreens.HomeScreen
 import uk.ac.tees.mad.planty.presentation.AuthScreens.LogInScreen
@@ -111,20 +110,28 @@ fun NavigationCompose(
 
             MyPlantScreen(
 
-                homeViewmodel = homeViewModel,
-                onBackClick = {},
+                homeViewModel = homeViewModel,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+
+                navController = navController,
             )
 
         }
         composable<Routes.ProfileScreen> {
 
-            ProfileScreen()
+            ProfileScreen(navController,homeViewModel)
         }
         composable<Routes.PlantDetailScreen> {
             val toRoute = it.toRoute<Routes.PlantDetailScreen>()
             PlantDetailScreen(
                 homeViewmodel = homeViewModel,
-                plantId = toRoute.plantId
+                plantId = toRoute.plantId,
+
+                onBackClick = {
+                    navController.popBackStack()
+                }
             )
 
         }

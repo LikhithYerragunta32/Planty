@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,9 +40,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalFlorist
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.LocalFlorist
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -50,11 +57,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -76,10 +87,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 
 import coil3.compose.AsyncImage
+import uk.ac.tees.mad.planty.NavItems
 import uk.ac.tees.mad.planty.R
 import uk.ac.tees.mad.planty.domain.model.DomainPlantData
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.AuthViewmodel
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.HomeViewmodel
+import uk.ac.tees.mad.planty.presentation.Navigation.BottomNavigation
 import uk.ac.tees.mad.planty.presentation.Navigation.Routes
 import uk.ac.tees.mad.planty.presentation.UtilScreens.PlantCard
 import uk.ac.tees.mad.planty.presentation.UtilScreens.TrefleCard
@@ -178,422 +191,433 @@ fun HomeScreen(
 
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFF0F4E8),
-                        Color(0xFFE8F5E9)
+
+
+    Scaffold(modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            BottomNavigation(navController = navController)
+        }) { paddingValues ->
+        Column(
+            modifier = modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFFF0F4E8),
+                            Color(0xFFE8F5E9)
+                        )
                     )
                 )
-            )
-            .padding(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top)
-    ) {
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = {
-                    Text(
-                        "Select plant image", color = Color(0xFF1B5E20)
-                    )
-                },
-                text = {
-                    Text(
-                        "Choose an option to select image",
-                        color = Color(0xFF1B5E20)
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-
-                        if (isCameraGranted) {
-
-                            cameraLauncher.launch(imageUri)
-
-                        } else {
-
-                            permissionLauncher.launch(Manifest.permission.CAMERA)
-
-                        }
-
-                        showDialog = false
-
-
-                    }) {
+                .padding(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top)
+        ) {
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = {
                         Text(
-                            "Camera", color = Color(0xFF1B5E20)
+                            "Select plant image", color = Color(0xFF1B5E20)
                         )
-                    }
-
-
-                },
-                dismissButton = {
-                    TextButton(onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-
-
-                            photoPickerLauncher.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                            )
-
-
-                        } else {
-
-                            val intent = Intent(
-                                Intent.ACTION_PICK,
-                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                            )
-                            galleryLauncher.launch(intent)
-                        }
-                        showDialog = false
-                    }) {
-                        Text(
-                            "Storage", color = Color(0xFF1B5E20)
-                        )
-                    }
-                },
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Color(0xFFE8FDEA)
-            )
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-
-
-
-        if (selectedImageUri != null) {
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(320.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-            ) {
-                AsyncImage(
-                    model = selectedImageUri,
-                    contentDescription = "Selected plant image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        } else {
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(320.dp)
-                    .clickable {
-                        showDialog = true
                     },
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                border = BorderStroke(
-                    width = 2.dp,
-                    color = Color(0xFF81C784)
+                    text = {
+                        Text(
+                            "Choose an option to select image",
+                            color = Color(0xFF1B5E20)
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+
+                            if (isCameraGranted) {
+
+                                cameraLauncher.launch(imageUri)
+
+                            } else {
+
+                                permissionLauncher.launch(Manifest.permission.CAMERA)
+
+                            }
+
+                            showDialog = false
+
+
+                        }) {
+                            Text(
+                                "Camera", color = Color(0xFF1B5E20)
+                            )
+                        }
+
+
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+
+                                photoPickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+
+
+                            } else {
+
+                                val intent = Intent(
+                                    Intent.ACTION_PICK,
+                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                                )
+                                galleryLauncher.launch(intent)
+                            }
+                            showDialog = false
+                        }) {
+                            Text(
+                                "Storage", color = Color(0xFF1B5E20)
+                            )
+                        }
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                    containerColor = Color(0xFFE8FDEA)
                 )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PhotoLibrary,
-                        contentDescription = "Upload image",
-                        modifier = Modifier.size(64.dp),
-                        tint = Color(0xFF2E7D32)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Tap to select image",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF2E7D32)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Choose a plant photo from your gallery",
-                        fontSize = 12.sp,
-                        color = Color(0xFF558B2F)
-                    )
-                }
             }
-            if (uiState.error != null) {
-                Text(
-                    text = "${uiState.error}",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFFFF3B3B),
-                )
-            }
+            Spacer(modifier = Modifier.height(20.dp))
 
 
-        }
 
+            if (selectedImageUri != null) {
 
-        val samplePlants = listOf(
-            DomainPlantData(
-                plantName = "Solanum lycopersicum",
-                probability = 0.92,
-                commonNames = listOf("Tomato", "Garden tomato"),
-                infoUrl = "https://en.wikipedia.org/wiki/Tomato"
-            ),
-            DomainPlantData(
-                plantName = "Lactuca sativa",
-                probability = 0.65,
-                commonNames = listOf("Lettuce", "Garden lettuce"),
-                infoUrl = "https://en.wikipedia.org/wiki/Lettuce"
-            ),
-            DomainPlantData(
-                plantName = "Capsicum annuum",
-                probability = 0.38,
-                commonNames = listOf("Bell pepper", "Sweet pepper"),
-                infoUrl = null
-            ),
-            DomainPlantData(
-                plantName = "Rosa canina",
-                probability = 0.25,
-                commonNames = listOf("Dog rose", "Wild rose"),
-                infoUrl = null
-            ),
-            DomainPlantData(
-                plantName = "Fragaria × ananassa",
-                probability = 0.88,
-                commonNames = listOf("Strawberry"),
-                infoUrl = "https://en.wikipedia.org/wiki/Strawberry"
-            )
-        )
-
-
-        Column {
-
-
-            uiState.data?.let { plants ->
-                LazyRow(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(16.dp)
+                        .height(320.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
-                    items(plants) { plant ->
-                        PlantCard(
-                            plantData = plant,
-                            onCardClick = { plantName ->
-                                homeViewModel.fetchPlantId(plantName)
-                            }
+                    AsyncImage(
+                        model = selectedImageUri,
+                        contentDescription = "Selected plant image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            } else {
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .height(320.dp)
+                        .clickable {
+                            showDialog = true
+                        },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    border = BorderStroke(
+                        width = 2.dp,
+                        color = Color(0xFF81C784)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PhotoLibrary,
+                            contentDescription = "Upload image",
+                            modifier = Modifier.size(64.dp),
+                            tint = Color(0xFF2E7D32)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Tap to select image",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF2E7D32)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Choose a plant photo from your gallery",
+                            fontSize = 12.sp,
+                            color = Color(0xFF558B2F)
                         )
                     }
                 }
-            }
-
-
-            if (trefleUiState.isLoading) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "Expected result",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFF2E7D32),
-                    )
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Color(0xFF2E7D32),
-                        strokeWidth = 2.dp
-                    )
-                }
-            }
-
-            trefleUiState.data?.let { trefleData ->
-
-                if (trefleUiState.error != null) {
+                if (uiState.error != null) {
                     Text(
                         text = "${uiState.error}",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFFFF3B3B),
                     )
-                } else {
-                    Text(
-                        text = "Expected result",
-                        Modifier.padding(horizontal = 16.dp),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFF2E7D32),
-                    )
-                }
-
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(
-                        trefleData
-                    ) {
-                        TrefleCard(
-                            plant = it,
-                            isLoading = trefleUiState.isLoading,
-                            onCardClick = {
-                                navController.navigate(Routes.PlantDetailScreen(it))
-                            }
-                        )
-                    }
-
                 }
 
 
             }
-        }
 
 
+            val samplePlants = listOf(
+                DomainPlantData(
+                    plantName = "Solanum lycopersicum",
+                    probability = 0.92,
+                    commonNames = listOf("Tomato", "Garden tomato"),
+                    infoUrl = "https://en.wikipedia.org/wiki/Tomato"
+                ),
+                DomainPlantData(
+                    plantName = "Lactuca sativa",
+                    probability = 0.65,
+                    commonNames = listOf("Lettuce", "Garden lettuce"),
+                    infoUrl = "https://en.wikipedia.org/wiki/Lettuce"
+                ),
+                DomainPlantData(
+                    plantName = "Capsicum annuum",
+                    probability = 0.38,
+                    commonNames = listOf("Bell pepper", "Sweet pepper"),
+                    infoUrl = null
+                ),
+                DomainPlantData(
+                    plantName = "Rosa canina",
+                    probability = 0.25,
+                    commonNames = listOf("Dog rose", "Wild rose"),
+                    infoUrl = null
+                ),
+                DomainPlantData(
+                    plantName = "Fragaria × ananassa",
+                    probability = 0.88,
+                    commonNames = listOf("Strawberry"),
+                    infoUrl = "https://en.wikipedia.org/wiki/Strawberry"
+                )
+            )
 
-        Spacer(modifier = Modifier.weight(1f))
 
-        // Buttons Row
-        if (selectedImageUri != null) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .height(56.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            Column {
 
-                Button(
-                    onClick = {
 
-                        val base64Image = uriToBase64(context, uri)
+                uiState.data?.let { plants ->
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(plants) { plant ->
+                            PlantCard(
+                                plantData = plant,
+                                onCardClick = { plantName ->
+                                    homeViewModel.fetchPlantId(plantName)
+                                }
+                            )
+                        }
+                    }
+                }
 
-                        homeViewModel.fetchPlantData(
-                            image = base64Image
+
+                if (trefleUiState.isLoading) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Expected result",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF2E7D32),
                         )
 
+                        Spacer(modifier = Modifier.width(12.dp))
 
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color(0xFF2E7D32),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
+
+                trefleUiState.data?.let { trefleData ->
+
+                    if (trefleUiState.error != null) {
+                        Text(
+                            text = "${uiState.error}",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFFFF3B3B),
+                        )
+                    } else {
+                        Text(
+                            text = "Expected result",
+                            Modifier.padding(horizontal = 16.dp),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF2E7D32),
+                        )
+                    }
+
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            trefleData
+                        ) {
+                            TrefleCard(
+                                plant = it,
+                                isLoading = trefleUiState.isLoading,
+                                onCardClick = {
+                                    navController.navigate(Routes.PlantDetailScreen(it))
+                                }
+                            )
+                        }
+
+                    }
+
+
+                }
+            }
+
+
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Buttons Row
+            if (selectedImageUri != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .height(56.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+
+                    Button(
+                        onClick = {
+
+                            val base64Image = uriToBase64(context, uri)
+
+                            homeViewModel.fetchPlantData(
+                                image = base64Image
+                            )
+
+
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF2E7D32)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+
+                        if (uiState.isLoading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                strokeWidth = 3.dp,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search",
+                                modifier = Modifier.size(20.dp),
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Search",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
+                            )
+                        }
+
+                    }
+
+
+                    OutlinedButton(
+                        onClick = {
+
+                            showDialog = true
+
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        border = BorderStroke(2.dp, Color(0xFF2E7D32)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Select again",
+                            modifier = Modifier.size(20.dp),
+                            tint = Color(0xFF2E7D32)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Change",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF2E7D32)
+                        )
+                    }
+                }
+            } else {
+                Button(
+                    onClick = {
+                        showDialog = true
                     },
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF2E7D32)
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-
-                    if (uiState.isLoading) {
-                        CircularProgressIndicator(
-                            color = Color.White,
-                            strokeWidth = 3.dp,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
-                            modifier = Modifier.size(20.dp),
-                            tint = Color.White
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Search",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
-                        )
-                    }
-
-                }
-
-
-                OutlinedButton(
-                    onClick = {
-
-                        showDialog = true
-
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    border = BorderStroke(2.dp, Color(0xFF2E7D32)),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
                     Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Select again",
+                        imageVector = Icons.Default.PhotoLibrary,
+                        contentDescription = "Select image",
                         modifier = Modifier.size(20.dp),
-                        tint = Color(0xFF2E7D32)
+                        tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Change",
-                        fontSize = 14.sp,
+                        text = "Select Image",
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF2E7D32)
+                        color = Color.White
                     )
                 }
             }
-        } else {
-            Button(
-                onClick = {
-                    showDialog = true
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2E7D32)
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PhotoLibrary,
-                    contentDescription = "Select image",
-                    modifier = Modifier.size(20.dp),
-                    tint = Color.White
-                )
-                Spacer(modifier = Modifier.width(8.dp))
+            if (selectedImageUri == null) {
                 Text(
-                    text = "Select Image",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+                    text = "Tips: Take clear photos in good lighting",
+                    fontSize = 12.sp,
+                    color = Color(0xFF558B2F),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 )
             }
+            Spacer(modifier = Modifier.height(70.dp))
         }
-        if (selectedImageUri == null) {
-            Text(
-                text = "Tips: Take clear photos in good lighting",
-                fontSize = 12.sp,
-                color = Color(0xFF558B2F),
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(70.dp))
+
     }
+
+
 }
 
 

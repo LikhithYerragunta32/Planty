@@ -33,7 +33,7 @@ class PlantRepositoryImpl(
 //    private val API_KEY = "ENZF56UDT2C8iUX2ueep5OoNTDILmnsGLZRbOWtlYPo2K1hRLJ"
 
     //    private val API_KEY = "uSEUmJMRC8YZ4viogZHZytB6lES1OOGprjf9nZCPNh8VVNWsQn"
-    private val API_KEY = "hK3In0PuF5gyYyb7cCAld9opjjtmv6kJVuBSn0eP82L4FeBr4c"
+    private val API_KEY = "hhr1CsoKOLVPFsUA0Cl4iLQNRuNkhMm5y5XfY7Drwx7qV29t6h"
 
     override suspend fun identifyPlant(imageUrl: String): Result<List<DomainPlantData>> {
         return try {

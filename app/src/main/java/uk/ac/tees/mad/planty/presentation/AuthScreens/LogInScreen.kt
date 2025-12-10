@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.planty.presentation.AuthScreens
 
 import android.R.attr.onClick
+import android.R.attr.textColor
 import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -25,6 +26,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,10 +67,11 @@ fun LogInScreen(
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     var isLoading by rememberSaveable { mutableStateOf(false) }
 
-    val bgColor = Brush.verticalGradient(
+    val bgColor1 = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF4CAF50),
             Color(0xFF81C784),
+
 
             Color(0xFF4CAF50)
         )
@@ -80,6 +83,9 @@ fun LogInScreen(
             Color(0xFF4CAF50)
         )
     )
+
+    val textColor = Color(0xFF2E7D32)
+    val bgColor = Color(0xFFE8F5E9)
 
     LaunchedEffect(Triggeer) {
         delay(3000)
@@ -104,7 +110,7 @@ fun LogInScreen(
             .fillMaxSize()
             .padding()
             .background(
-                brush = bgColor
+                brush = bgColor1
             )
     ) {
 
@@ -121,11 +127,26 @@ fun LogInScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                placeholder = { Text("Email", color = textColor.copy(alpha = 0.6f)) },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                 modifier = Modifier.fillMaxWidth(),
                 shape = cornerShape,
-                isError = email.isNotEmpty() && !isEmailValid
+//                isError = email.isNotEmpty() && !isEmailValid,
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
+                    cursorColor = textColor,
+                    disabledTextColor = textColor,
+                    focusedContainerColor = bgColor,
+                    unfocusedContainerColor = bgColor,
+                    disabledContainerColor = bgColor,
+                    focusedIndicatorColor = textColor,
+                    unfocusedIndicatorColor = textColor.copy(alpha = 0.5f),
+                    disabledIndicatorColor = textColor.copy(alpha = 0.3f),
+                    focusedLabelColor = textColor,
+                    unfocusedLabelColor = textColor.copy(alpha = 0.8f),
+                    disabledLabelColor = textColor.copy(alpha = 0.5f)
+                )
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -134,7 +155,7 @@ fun LogInScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                placeholder = { Text("Password", color = textColor.copy(alpha = 0.6f)) },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                 modifier = Modifier.fillMaxWidth(),
                 shape = cornerShape,
@@ -154,7 +175,22 @@ fun LogInScreen(
                         )
                     }
                 },
-                isError = password.isNotEmpty() && !isPasswordValid
+//                isError = password.isNotEmpty() && !isPasswordValid,
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
+                    cursorColor = textColor,
+                    disabledTextColor = textColor,
+                    focusedContainerColor = bgColor,
+                    unfocusedContainerColor = bgColor,
+                    disabledContainerColor = bgColor,
+                    focusedIndicatorColor = textColor,
+                    unfocusedIndicatorColor = textColor.copy(alpha = 0.5f),
+                    disabledIndicatorColor = textColor.copy(alpha = 0.3f),
+                    focusedLabelColor = textColor,
+                    unfocusedLabelColor = textColor.copy(alpha = 0.8f),
+                    disabledLabelColor = textColor.copy(alpha = 0.5f)
+                )
             )
         }
 

@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import uk.ac.tees.mad.planty.data.local.PlantDao
 import uk.ac.tees.mad.planty.data.local.PlantEntity
+import uk.ac.tees.mad.planty.data.remote.supabase.SupabaseClientProvider
 import uk.ac.tees.mad.planty.domain.model.DomainPlantData
 import uk.ac.tees.mad.planty.domain.model.DomainPlantDetail
 import uk.ac.tees.mad.planty.domain.model.DomainTrefleData
@@ -24,6 +26,7 @@ import uk.ac.tees.mad.planty.domain.usecase.PlantUseCase
 import uk.ac.tees.mad.planty.domain.usecase.TreflePlantDetailsUseCase
 import uk.ac.tees.mad.planty.domain.usecase.TrefleUseCase
 import javax.inject.Inject
+import kotlin.jvm.java
 
 @HiltViewModel
 class HomeViewmodel @Inject constructor(
@@ -47,16 +50,6 @@ class HomeViewmodel @Inject constructor(
     private val _plantDetailsUiStates = MutableStateFlow(PlantScreenData.PlantDetailUiState())
     val plantDetailsUiStates = _plantDetailsUiStates.asStateFlow()
 
-
-    init {
-        viewModelScope.launch {
-            plantRepository.PlantDetailTrefle(
-                plantId = 53325
-            )
-        }
-
-
-    }
 
 
     fun getId(plantName: String) {
@@ -192,6 +185,12 @@ class HomeViewmodel @Inject constructor(
     }
 
 
+
+    fun logoutUser() {
+
+        auth.signOut()
+
+    }
     private val _isLoading = MutableStateFlow(false)
     var isLoading: StateFlow<Boolean> = _isLoading
 
@@ -218,8 +217,114 @@ class HomeViewmodel @Inject constructor(
 
             }
 
+
+        }
+        _isLoading.value = false
+    }
+
+    fun removeCity(plant: String, onResult: (Boolean, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: return onResult(false, "User not logged in")
+        val userRef = firestore.collection("user").document(uid)
+
+        userRef.get().addOnSuccessListener { doc ->
+            val likedCities = doc.get("savedPlant") as? List<String> ?: emptyList()
+
+            if (!likedCities.contains(plant)) {
+                onResult(false, "Plant not found in your list")
+            } else {
+                userRef.update("savedPlant", FieldValue.arrayRemove(plant))
+                    .addOnSuccessListener {
+                        onResult(true, "Plant removed successfully")
+                    }.addOnFailureListener { e ->
+                        onResult(false, e.message)
+                    }
+            }
+        }.addOnFailureListener { e ->
+            onResult(false, e.message)
         }
     }
+
+
+
+    private val _currentUserData = MutableStateFlow(GetUserInfo())
+    val currentUserData: StateFlow<GetUserInfo> = _currentUserData
+
+    fun fetchCurrentDonerData() {
+        auth.currentUser?.uid?.let { userId ->
+
+            db.collection("user").document(userId).addSnapshotListener { snapshot, e ->
+
+                if (e != null) {
+
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    val data = snapshot.toObject(GetUserInfo::class.java)
+                    data?.let {
+                        _currentUserData.value = it
+                        Log.d("Firestore","$it")
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateProfile(
+        ProfielImageByteArray: ByteArray,
+
+        name: String,
+
+        onResult: (String, Boolean) -> Unit,
+    ) {
+        viewModelScope.launch {
+            val userId = auth.currentUser?.uid ?: return@launch
+            val imageFileName = "profile_images/$userId.jpg"
+
+            try {
+
+                val ImageBucket = SupabaseClientProvider.client.storage["plantly_profile_img"]
+                ImageBucket.upload(imageFileName, ProfielImageByteArray, upsert = true)
+
+
+                val profileImageUrl = ImageBucket.publicUrl(imageFileName)
+
+
+
+                val updates = mapOf(
+                    "profileImageUrl" to profileImageUrl,
+                    "name" to name,
+                )
+
+                db.collection("user").document(userId).update(updates).addOnSuccessListener {
+                    onResult("Profile Update Success", true)
+                }.addOnFailureListener { e ->
+                    onResult(e.toString(), false)
+                }
+
+
+            } catch (e: Exception) {
+                onResult(e.toString(), false)
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

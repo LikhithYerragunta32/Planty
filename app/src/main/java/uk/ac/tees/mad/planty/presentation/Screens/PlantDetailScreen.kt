@@ -34,6 +34,7 @@ fun PlantDetailScreen(
     modifier: Modifier = Modifier,
     homeViewmodel: HomeViewmodel,
     plantId: Int,
+    onBackClick :()-> Unit
 
     ) {
     LaunchedEffect(Unit) {
@@ -58,7 +59,7 @@ fun PlantDetailScreen(
             )
         }, navigationIcon = {
             IconButton(onClick = {
-
+                onBackClick()
             }) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,

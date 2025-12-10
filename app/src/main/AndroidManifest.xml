@@ -39,6 +39,9 @@
 
         </activity>
 
+        <receiver
+            android:name=".notificaion.NotificationReceiver"
+            android:exported="true" />
 
 
         <provider

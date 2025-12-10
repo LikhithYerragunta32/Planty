@@ -1,5 +1,7 @@
 package uk.ac.tees.mad.planty.presentation.Screens
 
+import android.R.attr.strokeWidth
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,27 +26,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import okhttp3.Route
+import uk.ac.tees.mad.planty.presentation.Navigation.BottomNavigation
+import uk.ac.tees.mad.planty.presentation.Navigation.Routes
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPlantScreen(
     modifier: Modifier = Modifier,
-    homeViewmodel: HomeViewmodel,
+    homeViewModel: HomeViewmodel,
+    navController: NavHostController,
     onBackClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     val bgColor = Color(0xFFE8F5E9)
     val textColor = Color(0xFF2E7D32)
 
     // Fetch saved plants
     LaunchedEffect(Unit) {
-        homeViewmodel.getSavedPlant()
+        homeViewModel.getSavedPlant()
     }
 
-    val plantList by homeViewmodel.savedPlant.collectAsState()
-
+    val plantList by homeViewModel.savedPlant.collectAsState()
+    var isLoading = homeViewModel.isLoading.collectAsState().value
     Scaffold(
         topBar = {
             TopAppBar(
@@ -69,6 +78,9 @@ fun MyPlantScreen(
                 )
             )
         },
+        bottomBar = {
+            BottomNavigation(navController)
+        },
         containerColor = bgColor
     ) { paddingValues ->
 
@@ -80,11 +92,18 @@ fun MyPlantScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "No plants saved yet.",
-                    color = textColor,
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                if (isLoading) {
+                    CircularProgressIndicator( modifier = Modifier.size(32.dp),
+                        color = Color(0xFF2E7D32),
+                        strokeWidth = 2.dp)
+                } else {
+                    Text(
+                        text = "No plants saved yet.",
+                        color = textColor,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+
             }
         } else {
 
@@ -99,12 +118,21 @@ fun MyPlantScreen(
                     PlantCard(
                         plant = plant,
                         textColor = textColor,
+                        onCardClick={
+                            navController.navigate(Routes.PlantDetailScreen(it.toInt()))
+                        },
                         onDeleteClick = {
-//
-
-
-//
-
+                            homeViewModel.removeCity(
+                                plant = it,
+                                onResult = { condition, message ->
+                                    if (condition) {
+                                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                        homeViewModel.getSavedPlant()
+                                    } else {
+                                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            )
                         }
                     )
                 }
@@ -117,7 +145,8 @@ fun MyPlantScreen(
 private fun PlantCard(
     plant: PlantEntity,
     textColor: Color,
-    onDeleteClick: () -> Unit
+    onDeleteClick: (PlantId: String) -> Unit,
+    onCardClick: (PlantId: String) -> Unit,
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -125,7 +154,9 @@ private fun PlantCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {  }
+            .clickable {
+                onCardClick(plant.plantId)
+            }
     ) {
         Row(
             modifier = Modifier
@@ -142,6 +173,7 @@ private fun PlantCard(
                     .background(Color.White),
                 contentScale = ContentScale.Crop
             )
+
 
             Spacer(modifier = Modifier.width(12.dp))
 
@@ -165,18 +197,19 @@ private fun PlantCard(
                 )
             }
 
-
             IconButton(
-                onClick = onDeleteClick,
+                onClick = {
+                    onDeleteClick(plant.plantId)
+                },
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFEF5350))
+                    .background(Color(0xFFE8F5E9))
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete",
-                    tint = Color.White
+                    tint = Color(0xFF2E7D32)
                 )
             }
         }

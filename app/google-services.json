@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "358571526257",
-    "project_id": "planty-1abf9",
-    "storage_bucket": "planty-1abf9.firebasestorage.app"
+    "project_number": "4998199052",
+    "project_id": "planty-3f26e",
+    "storage_bucket": "planty-3f26e.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:358571526257:android:6901fe61e21c6ce545b3d0",
+        "mobilesdk_app_id": "1:4998199052:android:8d3925d49cf2f715d6bb29",
         "android_client_info": {
           "package_name": "uk.ac.tees.mad.planty"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyADil0oX0uSfbTKU3R-cytAYeEQNwwAzwk"
+          "current_key": "AIzaSyAXY5b58KiEnXKgWJt9TmU2fX_YdB1arLw"
         }
       ],
       "services": {

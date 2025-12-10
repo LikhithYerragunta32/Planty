@@ -1,5 +1,9 @@
 package uk.ac.tees.mad.planty
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,6 +56,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import uk.ac.tees.mad.planty.domain.reposiotry.NetworkConnectivityObserver
 import uk.ac.tees.mad.planty.domain.reposiotry.NetworkStatus
+import uk.ac.tees.mad.planty.notificaion.scheduleDailyWaterReminders
+import uk.ac.tees.mad.planty.notificaion.showInstantNotification
 
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.AuthViewmodel
 import uk.ac.tees.mad.planty.presentation.HIltViewmodels.HomeViewmodel
@@ -90,6 +98,22 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        scheduleDailyWaterReminders(this)
+//        showInstantNotification(this)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this as Activity,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    101
+                )
+            }
+
+        }
 
 
 
@@ -106,7 +130,6 @@ class MainActivity : ComponentActivity() {
             var bgColors by remember { mutableStateOf(Color.Red) }
             var showStatusBar by remember { mutableStateOf(false) }
             val status by connectivityObserver.networkStatus.collectAsStateWithLifecycle()
-            var selectedIndex by rememberSaveable { mutableIntStateOf(1) }
 
 
 
@@ -139,51 +162,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        NavigationBar(
-                            modifier = Modifier.height(70.dp),
-                            containerColor = Color(0xFF339838)
-                        ) {
-                            navItems.forEachIndexed { index, navItem ->
-                                val isSelected = selectedIndex == index
-                                val currentRoute = navController.currentDestination?.route
-                                NavigationBarItem(
-                                    modifier = Modifier.offset(y = 10.dp),
-                                    selected = false,
-                                    onClick = {
-                                        selectedIndex = index
 
-                                        when (selectedIndex) {
-
-                                            0 -> if (currentRoute != Routes.MyPlantScreen::class.qualifiedName) {
-                                                navController.navigate(Routes.MyPlantScreen(test = "Abhishek"))
-                                            }
-                                            1 -> if (currentRoute != Routes.HomeScreen::class.qualifiedName) {
-                                                navController.navigate(Routes.HomeScreen)
-                                            }
-                                            2 -> if (currentRoute != Routes.ProfileScreen::class.qualifiedName) {
-                                                navController.navigate(Routes.ProfileScreen)
-                                            }
-                                        }
-                                    },
-                                    icon = {
-                                        Icon(
-                                            imageVector = if (isSelected) navItem.filledIcon else navItem.outlinedIcon,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.background
-
-                                        )
-                                    },
-                                    label = {
-                                        Text(
-                                            text = navItem.title,
-                                            modifier = Modifier.offset(y = (-4).dp),
-                                            color = MaterialTheme.colorScheme.background
-                                        )
-                                    }
-                                )
-                            }
-
-                        }
                         NetworkStatusBar(
                             showMessageBar = showStatusBar,
                             message = message,
